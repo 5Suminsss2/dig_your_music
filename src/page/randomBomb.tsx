@@ -89,8 +89,8 @@ const RandomBomb = () => {
                 ) : (
                   <div className="flex flex-col">
                     <iframe
-                      width="560"
-                      height="315"
+                      width="430"
+                      height="300"
                       src={musicData[currentMusic]?.musicVideo}
                       title="YouTube video player"
                       // frameborder="0"
