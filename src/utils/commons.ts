@@ -1,4 +1,12 @@
-export const music = [
+export type MusicData = {
+  id: number;
+  title: string;
+  artist: string;
+  year: number;
+  musicVideo: string;
+};
+
+export const music: MusicData[] = [
   {
     id: 1,
     title: "Bohemian Rhapsody",

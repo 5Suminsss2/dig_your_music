@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { music } from "../utils/commons";
+import { MusicData, music } from "../utils/commons";
 
 const RandomBomb = () => {
   const [currentMusic, setCurrentMusic] = useState<number | null>(null);
-  const [musicData, setMusicData] = useState(music);
+  const [musicData, setMusicData] = useState<MusicData[]>(music);
   const emptyIndices = [5, 6, 9, 10]; // 빈 객체를 넣을 인덱스 목록 (가운데 부분)
-  const [clickedData, setClickedData] = useState([]);
+  const [clickedData, setClickedData] = useState<string[]>([]);
 
   // grid 그리기
   const gridItems = Array.from({ length: 4 }, (_, rowIndex) =>
@@ -13,13 +13,22 @@ const RandomBomb = () => {
   ).flat();
 
   // 랜덤 데이터 추출 함수
-  const getRandomMusicData = (data: [], count: number) => {
-    // 데이터 복사 후 랜덤으로 섞기
+  const getRandomMusicData = (
+    data: MusicData[],
+    count: number
+  ): MusicData[] => {
     const shuffled = data.sort(() => 0.5 - Math.random());
-    // 5, 6, 9, 10번째는 빈 객체로 삽입
-    const result = shuffled.slice(0, count).map((item: [], index: number) => {
+    const emptyIndices = [5, 6, 9, 10];
+    const result = shuffled.slice(0, count).map((item, index) => {
       if (emptyIndices.includes(index)) {
-        return {};
+        // 빈 값을 넣지 않고 기본 `MusicData` 구조를 채워 넣습니다.
+        return {
+          id: -1,
+          title: "No Title",
+          artist: "Unknown Artist",
+          year: 0,
+          musicVideo: "",
+        };
       }
       return item;
     });
@@ -55,7 +64,6 @@ const RandomBomb = () => {
 
   // bury 버튼 클릭 함수
   const handleBuryButton = (title: string) => {
-    console.log("title", title);
     const filteredDatas = musicData.filter((item) => item.title !== title);
     setMusicData(filteredDatas);
   };
@@ -119,38 +127,43 @@ const RandomBomb = () => {
               key={index}
               data-index={index} // 인덱스를 데이터 속성으로 저장
               className={
-                currentMusic !== null && index === currentMusic
+                clickedData.includes(musicData[index]?.title)
+                  ? "bg-[#50d71e] text-gray-800 text-lg flex flex-col justify-center items-center border-gray-400 rounded-lg shadow-innerShadow p-4 h-40 shadow-outerShadow bg-blue-400 transition-all duration-1000 transform scale-105 cursor-pointer"
+                  : currentMusic !== null && index === currentMusic
                   ? "bg-blue-300 text-gray-800 text-lg flex flex-col justify-center items-center border-gray-400 rounded-lg shadow-innerShadow p-4 h-40 shadow-outerShadow bg-blue-400 transition-all duration-1000 transform scale-105 cursor-pointer"
                   : "bg-blue-300 text-gray-800 text-lg flex flex-col justify-center items-center border-gray-400 rounded-lg shadow-innerShadow p-4 h-40 hover:shadow-outerShadow hover:bg-blue-400 transition-all duration-1000 transform hover:scale-105 cursor-pointer"
               }
               onClick={() => {
-                if (!(currentMusic !== null && index === currentMusic)) {
-                  handleMusicClick(index); // 조건이 맞을 때만 함수 호출
+                if (!clickedData.includes(musicData[index]?.title)) {
+                  if (!(currentMusic !== null && index === currentMusic)) {
+                    handleMusicClick(index); // 조건이 맞을 때만 함수 호출
+                  }
                 }
               }}
             >
-              {currentMusic !== null && index === currentMusic ? (
+              {!clickedData.includes(musicData[index]?.title) &&
+              currentMusic !== null &&
+              index === currentMusic ? (
                 <div className="flex space-x-4">
-                  <div
+                  <button
                     className="py-2 px-3 bg-[#4F46E5] text-[#fff] text-sm font-semibold rounded-md shadow focus:outline-none"
                     onClick={() => {
                       handleDigButton(index, musicData[currentMusic]?.title);
                     }}
                   >
                     DIG!!
-                  </div>
-                  <div
+                  </button>
+                  <button
                     className="py-2 px-3 bg-[#E11D48] text-[#fff] text-sm font-semibold rounded-md shadow focus:outline-none"
                     onClick={() => {
                       handleBuryButton(musicData[currentMusic]?.title);
                     }}
                   >
                     BURY...
-                  </div>
+                  </button>
                 </div>
               ) : (
                 <>
-                  {console.log("musicData[index]", index, musicData[index])}
                   <div className="font-semibold text-center">
                     {musicData[index]?.title}
                   </div>
